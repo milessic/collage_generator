@@ -103,6 +103,27 @@ button.danger { background: #dc2626; }
   .image-row { grid-template-columns: 1fr; }
   .image-row img { width: 100%; }
 }
+footer {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-size: 1em;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer a {
+    color: #00dfd8;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+footer a:hover {
+    color: #007bff;
+    transform: scale(1.1);
+}
 </style>
 </head>
 
@@ -157,6 +178,9 @@ button.danger { background: #dc2626; }
 </div>
 
 </div>
+<footer>
+<span>Created by</span> <a href="https://mjportfolio.bieda.it/" target="_blank">Miłosz 'milessic' Jura</a><span id="year">, 2026</span>
+</footer>
 
 <script>
 	const defaults={font:"Arial",fontSize:18,columns:1,bgColor:"#ffffff",fontColor:"#000000",spacing:10};let files=[],descriptionsData=[];const state=JSON.parse(localStorage.getItem("collageSettings"))||defaults;function setInfo(e,t){infostate.textContent=e,infostate.className=t}function renderDescriptions(){descriptions.innerHTML="",files.forEach((e,t)=>{let a=document.createElement("div");a.className="image-row",a.innerHTML=`
