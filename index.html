@@ -124,6 +124,15 @@ footer a:hover {
     color: #007bff;
     transform: scale(1.1);
 }
+
+#dropzone {
+	border: 2px dashed #6b7280;
+  	border-radius: 14px;
+  	padding: 1.2rem;
+  	text-align: center;
+  	margin-bottom: 0.8rem;
+  	transition: 0.2s;
+}
 </style>
 </head>
 
@@ -135,7 +144,8 @@ footer a:hover {
     <label>Title</label>
     <input id="title" placeholder="My collage" />
 
-    <label>Upload images (1–20)</label>
+    <label>Add images</label>
+	<div id="dropzone">Drag & drop images here</div>
     <input id="images" type="file" accept="image/*" multiple />
 
     <div id="descriptions"></div>
@@ -183,11 +193,170 @@ footer a:hover {
 </footer>
 
 <script>
-	const defaults={font:"Arial",fontSize:18,columns:1,bgColor:"#ffffff",fontColor:"#000000",spacing:10};let files=[],descriptionsData=[];const state=JSON.parse(localStorage.getItem("collageSettings"))||defaults;function setInfo(e,t){infostate.textContent=e,infostate.className=t}function renderDescriptions(){descriptions.innerHTML="",files.forEach((e,t)=>{let a=document.createElement("div");a.className="image-row",a.innerHTML=`
+	const defaults = {
+    font: "Arial",
+    fontSize: 18,
+    columns: 1,
+    bgColor: "#ffffff",
+    fontColor: "#000000",
+    spacing: 10
+};
+let files = [],
+    descriptionsData = [];
+const state = JSON.parse(localStorage.getItem("collageSettings")) || defaults;
+
+function setInfo(e, t) {
+    infostate.textContent = e, infostate.className = t
+}
+
+function renderDescriptions() {
+    descriptions.innerHTML = "", files.forEach((e, t) => {
+        let a = document.createElement("div");
+        a.className = "image-row", a.innerHTML = `
       <img src="${URL.createObjectURL(e)}">
       <textarea placeholder="Description">${descriptionsData[t]}</textarea>
       <button class="danger">✕</button>
-    `,a.querySelector("textarea").oninput=e=>descriptionsData[t]=e.target.value,a.querySelector("button").onclick=()=>{files.splice(t,1),descriptionsData.splice(t,1),renderDescriptions(),setInfo("Image removed","warn")},descriptions.appendChild(a)})}function saveSettings(){localStorage.setItem("collageSettings",JSON.stringify({font:font.value,fontSize:fontSize.value,columns:columns.value,bgColor:bgColor.value,fontColor:fontColor.value,spacing:spacing.value}))}function resetDefaults(){localStorage.removeItem("collageSettings"),location.reload()}function wrapText(e,t,a){let l=t.split(" "),n=[],i="";for(let o of l){let r=i+o+" ",s=e.measureText(r);s.width>a&&""!==i?(n.push(i.trim()),i=o+" "):i=r}return i&&n.push(i.trim()),n}function textBlockHeight(e,t,a=4){return e.length*(t+a)}async function generate(){if(!files.length){setInfo("Please upload at least one image","warn");return}saveSettings();let e=document.createElement("canvas"),t=e.getContext("2d"),a=await Promise.all(files.map(e=>new Promise(t=>{let a=new Image;a.onload=()=>t(a),a.src=URL.createObjectURL(e)}))),l=Math.max(1,Math.min(3,Number(columns.value))),n=Number(spacing.value),i=Number(fontSize.value),o=(1200-n*(l-1))/l;e.width=1200,e.height=5e3,t.fillStyle=bgColor.value,t.fillRect(0,0,e.width,e.height),t.fillStyle=fontColor.value,t.textAlign="center",t.textBaseline="top",t.font=`${i}px ${font.value}`;let r=0,s=80,c=0;a.forEach((e,a)=>{let f=e.height/e.width*o,d=descriptionsData?.[a]||"",g=d?wrapText(t,d,o-12):[],u=textBlockHeight(g,i);t.drawImage(e,r,s,o,f);let p=s+f+6;g.forEach(e=>{t.fillText(e,r+o/2,p),p+=i+4}),c=Math.max(c,f+u+12),r+=o+n,(a+1)%l==0&&(r=0,s+=c+n,c=0)}),s+=c,t.font=`bold ${i+10}px ${font.value}`,t.fillText(title.value||"",e.width/2,20);let f=document.createElement("canvas");f.width=e.width,f.height=s+20,f.getContext("2d").drawImage(e,0,0),e.width=f.width,e.height=f.height,t.drawImage(f,0,0);let d=e.toDataURL("image/png"),g=document.createElement("a");g.download="collage.png",g.href=d,g.click();let u=document.getElementById("preview");u.src=d,u.style.display="block",setInfo("Collage generated, downloaded and previewed","ok")}function getTimestamp(){let e=new Date;return`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`}Object.keys(defaults).forEach(e=>window[e].value=state[e]),images.addEventListener("change",()=>{if((files=[...images.files]).length>20){setInfo("Maximum 20 images allowed","error"),files=[],images.value="";return}descriptionsData=files.map(()=>""),renderDescriptions(),setInfo("Images loaded","ok")}),title.value=getTimestamp();
+    `, a.querySelector("textarea").oninput = e => descriptionsData[t] = e.target.value, a.querySelector("button").onclick = () => {
+            files.splice(t, 1), descriptionsData.splice(t, 1), renderDescriptions(), setInfo("Image removed", "warn")
+        }, descriptions.appendChild(a)
+    })
+}
+
+function saveSettings() {
+    localStorage.setItem("collageSettings", JSON.stringify({
+        font: font.value,
+        fontSize: fontSize.value,
+        columns: columns.value,
+        bgColor: bgColor.value,
+        fontColor: fontColor.value,
+        spacing: spacing.value
+    }))
+}
+
+function resetDefaults() {
+    localStorage.removeItem("collageSettings"), location.reload()
+}
+
+function wrapText(e, t, a) {
+    let l = t.split(" "),
+        n = [],
+        i = "";
+    for (let o of l) {
+        let r = i + o + " ",
+            s = e.measureText(r);
+        s.width > a && "" !== i ? (n.push(i.trim()), i = o + " ") : i = r
+    }
+    return i && n.push(i.trim()), n
+}
+
+function textBlockHeight(e, t, a = 4) {
+    return e.length * (t + a)
+}
+async function generate() {
+    if (!files.length) {
+        setInfo("Please upload at least one image", "warn");
+        return
+    }
+    saveSettings();
+    let e = document.createElement("canvas"),
+        t = e.getContext("2d"),
+        a = await Promise.all(files.map(e => new Promise(t => {
+            let a = new Image;
+            a.onload = () => t(a), a.src = URL.createObjectURL(e)
+        }))),
+        l = Math.max(1, Math.min(3, Number(columns.value))),
+        n = Number(spacing.value),
+        i = Number(fontSize.value),
+        o = (1200 - n * (l - 1)) / l;
+    e.width = 1200, e.height = 5e3, t.fillStyle = bgColor.value, t.fillRect(0, 0, e.width, e.height), t.fillStyle = fontColor.value, t.textAlign = "center", t.textBaseline = "top", t.font = `${i}px ${font.value}`;
+    let r = 0,
+        s = 80,
+        c = 0;
+    a.forEach((e, a) => {
+        let f = e.height / e.width * o,
+            d = descriptionsData?.[a] || "",
+            g = d ? wrapText(t, d, o - 12) : [],
+            u = textBlockHeight(g, i);
+        t.drawImage(e, r, s, o, f);
+        let p = s + f + 6;
+        g.forEach(e => {
+            t.fillText(e, r + o / 2, p), p += i + 4
+        }), c = Math.max(c, f + u + 12), r += o + n, (a + 1) % l == 0 && (r = 0, s += c + n, c = 0)
+    }), s += c, t.font = `bold ${i+10}px ${font.value}`, t.fillText(title.value || "", e.width / 2, 20);
+    let f = document.createElement("canvas");
+    f.width = e.width, f.height = s + 20, f.getContext("2d").drawImage(e, 0, 0), e.width = f.width, e.height = f.height, t.drawImage(f, 0, 0);
+    let d = e.toDataURL("image/png"),
+        g = document.createElement("a");
+	if (DOWNLOAD_COLLAGE) {g.download = "collage.png", g.href = d, g.click();}
+    let u = document.getElementById("preview");
+    u.src = d, u.style.display = "block", setInfo("Collage generated, downloaded and previewed", "ok")
+}
+
+function getTimestamp() {
+    let e = new Date;
+    return `${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`
+}
+
+function addFiles(newFiles) {
+  if (!newFiles.length) return;
+
+  if (files.length + newFiles.length > 20) {
+    setInfo("You can add up to 20 images total", "error");
+    return;
+  }
+
+  newFiles.forEach(file => {
+    if (!file.type.startsWith("image/")) return;
+    files.push(file);
+    descriptionsData.push("");
+  });
+
+  renderDescriptions();
+  setInfo("Images added", "ok");
+}
+
+const DOWNLOAD_COLLAGE = false;
+
+Object.keys(defaults).forEach(e => window[e].value = state[e])
+
+
+images.addEventListener("change", () => {
+	/* prevent from uploading more than 20
+    if ((files = [...images.files]).length > 20) {
+        setInfo("Maximum 20 images allowed", "error"), files = [], images.value = "";
+        return
+    }
+	*/
+	addFiles([...images.files]);
+	images.value = "";
+});
+
+// add drag and drop
+const dropzone = document.getElementById("dropzone");
+
+["dragenter", "dragover"].forEach(evt => {
+  dropzone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropzone.style.borderColor = "#4f46e5";
+    dropzone.style.background = "rgba(79,70,229,0.1)";
+  });
+});
+
+["dragleave", "drop"].forEach(evt => {
+  dropzone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropzone.style.borderColor = "#6b7280";
+    dropzone.style.background = "transparent";
+  });
+});
+
+dropzone.addEventListener("drop", e => {
+  const droppedFiles = [...e.dataTransfer.files];
+  addFiles(droppedFiles);
+});
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => e.preventDefault());
+title.value = getTimestamp();
 </script>
 </body>
 </html>
