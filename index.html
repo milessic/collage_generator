@@ -289,7 +289,7 @@ async function generate() {
         g = document.createElement("a");
 	if (DOWNLOAD_COLLAGE) {g.download = "collage.png", g.href = d, g.click();}
     let u = document.getElementById("preview");
-    u.src = d, u.style.display = "block", setInfo("Collage generated, downloaded and previewed", "ok")
+    u.src = d, u.style.display = "block", setInfo("Collage generated!", "ok")
 }
 
 function getTimestamp() {
