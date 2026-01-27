@@ -184,7 +184,9 @@ footer a:hover {
   <p id="infostate"></p>
   <div class="card">
   <label>Generated preview</label>
-  <img id="preview" style="width:100%; border-radius:12px; display:none;" />
+  <a id="previewLink" download>
+  	<img id="preview" style="width:100%; border-radius:12px; display:none;" />
+  </a>
 </div>
 
 </div>
@@ -285,11 +287,29 @@ async function generate() {
     }), s += c, t.font = `bold ${i+10}px ${font.value}`, t.fillText(title.value || "", e.width / 2, 20);
     let f = document.createElement("canvas");
     f.width = e.width, f.height = s + 20, f.getContext("2d").drawImage(e, 0, 0), e.width = f.width, e.height = f.height, t.drawImage(f, 0, 0);
-    let d = e.toDataURL("image/png"),
-        g = document.createElement("a");
-	if (DOWNLOAD_COLLAGE) {g.download = "collage.png", g.href = d, g.click();}
-    let u = document.getElementById("preview");
-    u.src = d, u.style.display = "block", setInfo("Collage generated!", "ok")
+	// prepare metadata for download
+	let dataUrl = f.toDataURL("image/png");
+	let safeTitle = (title.value || "collage")
+	  .replace(/[^\w\d]+/g, "_")
+	  .toLowerCase();
+
+	// download instantly
+	if (DOWNLOAD_COLLAGE) {
+        link = document.createElement("a");
+		link.download = "collage.png";
+		link.href = d;
+		link.click();
+	}
+	// set preview
+    preview = document.getElementById("preview");
+	previewLink = document.getElementById("previewLink");
+	
+    preview.src = dataUrl;
+	preview.style.display = "block";
+	previewLink.href = dataUrl;
+	previewLink.download = `${safeTitle}.png`
+
+	setInfo("Collage generated!", "ok");
 }
 
 function getTimestamp() {
