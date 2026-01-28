@@ -184,6 +184,7 @@ footer a:hover {
   <p id="infostate"></p>
   <div class="card">
   <label>Generated preview</label>
+  <button id="downloadCollage" style="display:none;margin-bottom:15px;">Download</button>
   <a id="previewLink" download>
   	<img id="preview" style="width:100%; border-radius:12px; display:none;" />
   </a>
@@ -308,6 +309,7 @@ async function generate() {
 	preview.style.display = "block";
 	previewLink.href = dataUrl;
 	previewLink.download = `${safeTitle}.png`
+	document.getElementById("downloadCollage").style.display = "block";
 
 	setInfo("Collage generated!", "ok");
 }
@@ -375,7 +377,18 @@ dropzone.addEventListener("drop", e => {
   addFiles(droppedFiles);
 });
 document.addEventListener("dragover", e => e.preventDefault());
-document.addEventListener("drop", e => e.preventDefault());
+document.addEventListener("drop", e => e.preventDefault());	document.getElementById("previewLink").addEventListener("click", e => {
+  e.preventDefault(); // block left-click download
+});
+document.querySelector("#downloadCollage").addEventListener("click", e => {
+    link = document.createElement("a");
+		link.download = previewLink.download;
+		link.href = previewLink.href;
+		link.click();
+	link.remove();
+	console.log(1);
+});
+
 title.value = getTimestamp();
 </script>
 </body>
